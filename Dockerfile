@@ -10,14 +10,14 @@ COPY go.mod go.sum ./
 # Clonar whatsmeow-lib do GitHub (submodule não é inicializado automaticamente pelo Railway)
 RUN git clone --depth 1 https://github.com/EvolutionAPI/whatsmeow.git whatsmeow-lib
 
-# Atualizar go.mod/go.sum para refletir as dependências do whatsmeow-lib clonado
-RUN go mod tidy
-
-# Agora fazer download das dependências (com replace funcionando)
+# Pre-download das dependências já listadas em go.mod/go.sum
 RUN go mod download
 
 # Copiar o restante do código
 COPY . .
+
+# Atualizar go.mod/go.sum com o código fonte presente para refletir as dependências reais
+RUN go mod tidy
 
 ARG VERSION=dev
 RUN CGO_ENABLED=1 go build -ldflags "-X main.version=${VERSION}" -o server ./cmd/evolution-go
